@@ -1,11 +1,11 @@
-#!/bin/python3
+#!/bin/python
 
 import numpy as np
 from timeit import default_timer as timer
 from collections import defaultdict
 
-numcon = 8
-arraysize = 20
+numcon = 9990
+arraysize = 10000
 points = np.arange(arraysize)
 
 # Function to generate a number of connections for a given size random array
@@ -89,7 +89,54 @@ def clusternets(connectsize,connects):
 
 	return blocks
 
+def quick_union(connections, size):
+    # create np.array of size "size"
+    items = np.arange(size)
+    # while length of connections define the union tree
+    numconec = len(connections[0])
 
+    # generate union array by checking all connections generated
+    z = 0
+    while (z < numconec):
+	# get first connection
+	if items[connections[0][z]] != items[connections[1][z]]:
+	    # if not connected create the connection
+	    items[connections[0][z]] = items[connections[1][z]]
+        z = z+1
+    return items
+
+def weighted_quickunion(connections, size):
+    # create np.array of size "size"
+    items = np.arange(size)
+    # create a length array of zeros with size "size"
+    length = np.zeros((size,), dtype=np.int)
+    # while length of connections define the union tree
+    numconec = len(connections[0])
+
+    # generate union array by checking all connections generated
+    z = 0
+    while (z < numconec):
+        # when they are not already connected
+        if items[connections[0][z]] != items[connections[1][z]]:
+	    # give the root of the larger tree
+	    if length[connections[1][z]] >= length[connections[0][z]]:
+        	items[connections[0][z]] = items[connections[1][z]]
+		# add level of length[connections[0][z]] to length of tree of items[connections[1][z]]
+		if length[connections[0][z]] == 0:
+		    length[connections[1][z]] += 1
+		else:
+		    length[connections[1][z]] += length[connections[0][z]] 
+            elif length[connections[0][z]] > length[connections[1][z]]:
+		items[connections[1][z]] = items[connections[0][z]]
+		# add levels of length[connections[1][z]] to length of tree of items[connections[0][z]]
+		if length[connections[1][z]] == 0:
+		    length[connections[0][z]] += 1 
+		else:
+		    length[connections[0][z]] += length[connections[1][z]]
+
+        z = z+1
+    # end of check connections generated        
+    return items,length
 
 
 # Start calculating time
@@ -117,5 +164,26 @@ print "these are my nets: \n",nets
 print "This is the time performance (s) of connections generation: \n",elapsed_time
 
 
+# start calculating time
+t = timer()
 
+# call quick_union
+tree = quick_union(connections,arraysize)
+
+elapsed_time = timer() - t
+
+print "This is the tree for quick union algorithm: \n",tree
+print "This is the time performance (s) of quick union: \n",elapsed_time
+
+
+
+# start calculating time
+t = timer()
+
+# call weighted quick_union
+tree = weighted_quickunion(connections,arraysize)
+
+print "This is the tree for weighted quickunion algorithm: \n",tree[0]
+print "This are the weights for each node: \n",tree[1]
+print "This is the time performance (s) of weighted quick union: \n",elapsed_time
 
