@@ -3,9 +3,19 @@
 import numpy as np
 from timeit import default_timer as timer
 from collections import defaultdict
+import sys
 
-numcon = 9990
-arraysize = 10000
+numcon = 9
+arraysize = 10
+
+#numcom = sys.argv[1]
+#arraysize = sys.argv[2]
+
+# create np.array of size "size"
+items = np.arange(arraysize)
+# create a length array of zeros with size "size"
+length = np.zeros((arraysize,), dtype=np.int)
+
 points = np.arange(arraysize)
 
 # Function to generate a number of connections for a given size random array
@@ -89,9 +99,7 @@ def clusternets(connectsize,connects):
 
 	return blocks
 
-def quick_union(connections, size):
-    # create np.array of size "size"
-    items = np.arange(size)
+def quick_union(connections, items):
     # while length of connections define the union tree
     numconec = len(connections[0])
 
@@ -105,11 +113,7 @@ def quick_union(connections, size):
         z = z+1
     return items
 
-def weighted_quickunion(connections, size):
-    # create np.array of size "size"
-    items = np.arange(size)
-    # create a length array of zeros with size "size"
-    length = np.zeros((size,), dtype=np.int)
+def weighted_quickunion(connections, items, length):
     # while length of connections define the union tree
     numconec = len(connections[0])
 
@@ -168,7 +172,7 @@ print "This is the time performance (s) of connections generation: \n",elapsed_t
 t = timer()
 
 # call quick_union
-tree = quick_union(connections,arraysize)
+tree = quick_union(connections, items)
 
 elapsed_time = timer() - t
 
@@ -181,7 +185,7 @@ print "This is the time performance (s) of quick union: \n",elapsed_time
 t = timer()
 
 # call weighted quick_union
-tree = weighted_quickunion(connections,arraysize)
+tree = weighted_quickunion(connections, items, length)
 
 print "This is the tree for weighted quickunion algorithm: \n",tree[0]
 print "This are the weights for each node: \n",tree[1]
